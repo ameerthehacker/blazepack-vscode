@@ -10,14 +10,14 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:blazepack.helloWorld"
+		"onCommand:blazepack.startDevServer"
 	],
 	"main": "./extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "blazepack.helloWorld",
-				"title": "Hello World"
+				"command": "blazepack.startDevServer",
+				"title": "Start Blazepack dev server"
 			}
 		]
 	},
