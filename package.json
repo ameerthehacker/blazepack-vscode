@@ -10,7 +10,8 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:blazepack.startDevServer"
+		"onCommand:blazepack.startDevServer",
+		"onView:blazepack.devServer"
 	],
 	"main": "./extension.js",
 	"contributes": {
@@ -22,7 +23,7 @@
 		],
 		"viewsWelcome": [
       {
-        "view": "dev-server",
+        "view": "blazepack.devServer",
         "contents": "In order to use Blazepack, you need to open a supported project.\n[Open Folder](command:vscode.openFolder)\nTo learn more about how to use Blazepack in VS Code [read our docs](https://github.com/ameerthehacker/blazepack-vscode).",
         "when": "workbenchState == empty"
       }
@@ -30,16 +31,17 @@
 		"viewsContainers": {
       "activitybar": [
         {
-          "id": "blazepack-cockpit",
+          "id": "blazepackCockpit",
           "title": "Blazepack",
           "icon": "resources/logo.svg"
         }
       ]
     },
     "views": {
-      "blazepack-cockpit": [
+      "blazepackCockpit": [
         {
-          "id": "dev-server",
+          "id": "blazepack.devServer",
+					"type": "webview",
           "name": "Dev Server"
         }
       ]
