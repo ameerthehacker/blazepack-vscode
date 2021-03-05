@@ -19,7 +19,31 @@
 				"command": "blazepack.startDevServer",
 				"title": "Start Blazepack dev server"
 			}
-		]
+		],
+		"viewsWelcome": [
+      {
+        "view": "dev-server",
+        "contents": "In order to use Blazepack, you need to open a supported project.\n[Open Folder](command:vscode.openFolder)\nTo learn more about how to use Blazepack in VS Code [read our docs](https://github.com/ameerthehacker/blazepack-vscode).",
+        "when": "workbenchState == empty"
+      }
+    ],
+		"viewsContainers": {
+      "activitybar": [
+        {
+          "id": "blazepack-cockpit",
+          "title": "Blazepack",
+          "icon": "resources/logo.svg"
+        }
+      ]
+    },
+    "views": {
+      "blazepack-cockpit": [
+        {
+          "id": "dev-server",
+          "name": "Dev Server"
+        }
+      ]
+    }
 	},
 	"private": "true",
 	"scripts": {
