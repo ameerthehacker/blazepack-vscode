@@ -1,5 +1,6 @@
 const vscode = require('vscode');
 const bp = require('blazepack');
+const path = require('path');
 
 function activate(context) {
 	const provider = new BpDevServerWebViewProvider(context.extensionUri);
@@ -40,9 +41,7 @@ class BpDevServerWebViewProvider {
 		this._view = webviewView;
 
 		webviewView.webview.options = {
-			// Allow scripts in the webview
-			// enableScripts: true,
-
+			enableScripts: true,
 			localResourceRoots: [
 				this._extensionUri
 			]
@@ -51,7 +50,30 @@ class BpDevServerWebViewProvider {
 		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 	}
 
+	getExtension(filename) {
+		const parts = filename.split('.');
+
+		if (parts.length === 1) return null;
+		else return parts[parts.length - 1];
+	}
+
 	_getHtmlForWebview(webview) {
+		const nonce = getNonce();
+		const manifest = require(path.join(this._extensionUri.fsPath, 'ui', 'build', 'asset-manifest.json'));
+		const entryPoints = manifest['entrypoints'];
+		const styles = entryPoints.filter(entryPoint => this.getExtension(entryPoint) === 'css')
+															.map(style => {
+																const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'ui', 'build', style));
+
+																return `<link href="${styleUri}" rel="stylesheet">`
+															}).join('\n');
+		const scripts = entryPoints.filter(entryPoint => this.getExtension(entryPoint) === 'js')
+															.map(script => {
+																const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'ui', 'build', script));
+
+																return `<script nonce="${nonce}" src="${scriptUri}"></script>`
+															}).join('\n');
+
 		return `<!DOCTYPE html>
 			<html lang="en">
 			<head>
@@ -60,15 +82,26 @@ class BpDevServerWebViewProvider {
 					Use a content security policy to only allow loading images from https or from our extension directory,
 					and only allow scripts that have a specific nonce.
 				-->
-				<title>Cat Colors</title>
+				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				${styles}
+				<title>Blazepack VSCode</title>
 			</head>
 			<body>
-				<ul class="color-list">
-				</ul>
-				<button style="background: red;" class="add-color-button">Add Color</button>
+				<div id="root"></div>
+				${scripts}
 			</body>
 			</html>`;
 	}
+}
+
+function getNonce() {
+	let text = '';
+	const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	for (let i = 0; i < 32; i++) {
+		text += possible.charAt(Math.floor(Math.random() * possible.length));
+	}
+	return text;
 }
 
 module.exports = {
