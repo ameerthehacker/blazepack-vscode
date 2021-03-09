@@ -9,15 +9,15 @@
   "main": "src/index.js",
   "dependencies": {
     "@babel/runtime": "7.13.8",
+    "@craco/craco": "^6.1.1",
     "react": "17.0.1",
     "react-dom": "17.0.1",
-    "react-scripts": "4.0.0"
+    "react-scripts": "4.0.0",
+    "write-file-webpack-plugin": "^4.5.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "start": "BROWSER=none craco start",
+    "build": "craco build"
   },
   "browserslist": [
     ">0.2%",
