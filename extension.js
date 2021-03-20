@@ -4,23 +4,34 @@ const path = require('path');
 
 function activate(context) {
 	const provider = new BpDevServerWebViewProvider(context.extensionUri);
+	// TODO: eventually we want to move this into a setting
+	const DEV_SERVER_PORT = 3000;
+	let activeBlazepackServer;
 
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(BpDevServerWebViewProvider.viewType, provider));
 
 	let disposable = vscode.commands.registerCommand('blazepack.startDevServer', async () => {
+		if (activeBlazepackServer) {
+			vscode.window.showErrorMessage(`Blazepack dev server is already running!`);
+
+			return;
+		}
+
 		const workspaceFolders = vscode.workspace.workspaceFolders;
 
 		if (workspaceFolders) {
 			const directory = workspaceFolders[0].uri.path;
 
 			try {
-				bp.commands.startDevServer({ directory, port: 3000 });
+				activeBlazepackServer = await bp.commands.startDevServer({ directory, port: DEV_SERVER_PORT });
+
+				vscode.window.showInformationMessage(`⚡ Blazepack dev server running at ${DEV_SERVER_PORT}`);
 			} catch (err) {
 				vscode.window.showErrorMessage(err);
 			}
 		} else {
-			vscode.window.showErrorMessage('Working folder not found, open a folder an try again');
+			vscode.window.showErrorMessage('Working folder not found, open a folder and try again');
 		}
 	});
 
