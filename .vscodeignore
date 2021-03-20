@@ -12,3 +12,5 @@ ui/src/**
 ui/package.json
 ui/package-lock.json
 ui/craco.config.js
+node_modules/**
+ui/node_modules/**
