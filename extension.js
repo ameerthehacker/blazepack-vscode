@@ -1,20 +1,30 @@
 const vscode = require('vscode');
 const bp = require('blazepack');
 const path = require('path');
+const UI_MESSGAGES = require('./ui/src/constansts');
 
 let activeBlazepackServer;
 
 function activate(context) {
-	const provider = new BpDevServerWebViewProvider(context.extensionUri);
+	const bpWebviewProvider = new BpDevServerWebViewProvider(context.extensionUri);
 	// TODO: eventually we want to move this into a setting
 	const DEV_SERVER_PORT = 3000;
+	const isBpDevServerRunning = () => activeBlazepackServer && activeBlazepackServer.address();
 
 	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(BpDevServerWebViewProvider.viewType, provider)
+		vscode.window.registerWebviewViewProvider(BpDevServerWebViewProvider.viewType, bpWebviewProvider)
 	);
 
+	bpWebviewProvider.onLoad(() => {
+		if (isBpDevServerRunning()) {
+			bpWebviewProvider.startDevServer();
+		} else {
+			bpWebviewProvider.startDevServer();
+		}
+	})
+
 	let startDevServerDisposable = vscode.commands.registerCommand('blazepack.startDevServer', async () => {
-		if (activeBlazepackServer) {
+		if (isBpDevServerRunning()) {
 			vscode.window.showErrorMessage(`Blazepack dev server is already running!`);
 
 			return;
@@ -27,8 +37,10 @@ function activate(context) {
 
 			try {
 				activeBlazepackServer = await bp.commands.startDevServer({ directory, port: DEV_SERVER_PORT });
-
+				
 				vscode.window.showInformationMessage(`⚡ Blazepack dev server running at ${DEV_SERVER_PORT}`);
+
+				bpWebviewProvider.startDevServer();
 			} catch (err) {
 				vscode.window.showErrorMessage(err);
 			}
@@ -38,13 +50,15 @@ function activate(context) {
 	});
 
 	let stopDevServerDisposable = vscode.commands.registerCommand('blazepack.stopDevServer', () => {
-		if (!activeBlazepackServer) {
+		if (!isBpDevServerRunning()) {
 			vscode.window.showErrorMessage(`Blazepack dev server is not running!`);
 
 			return;
 		}
 
 		activeBlazepackServer.close();
+
+		bpWebviewProvider.stopDevServer();
 
 		vscode.window.showInformationMessage("Blazepack dev server stopped!");
 	});
@@ -66,6 +80,7 @@ class BpDevServerWebViewProvider {
 	constructor(extensionUri) { 
 		this._extensionUri = extensionUri;
 		this._view = null;
+		this._onLoadFn = null;
 	}
 
 	resolveWebviewView(webviewView, context, _token) {
@@ -79,6 +94,30 @@ class BpDevServerWebViewProvider {
 		};
 
 		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+
+		if (this._onLoadFn) {
+			this._onLoadFn();
+		}
+	}
+
+	onLoad(fn) {
+		this._onLoadFn = fn;
+	}
+
+	startDevServer() {
+		if (this._view) {
+			this._view.webview.postMessage({
+				type: UI_MESSGAGES.START_DEV_SERVER
+			})
+		}
+	}
+
+	stopDevServer() {
+		if (this._view) {
+			this._view.webview.postMessage({
+				type: UI_MESSGAGES.STOP_DEV_SERVER
+			})
+		}
 	}
 
 	getExtension(filename) {

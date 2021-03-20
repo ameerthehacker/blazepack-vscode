@@ -1,0 +1,10 @@
+.info-box {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.mt-10 {
+  margin-top: 10px;
+}
