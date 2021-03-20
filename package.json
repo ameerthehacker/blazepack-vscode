@@ -13,6 +13,7 @@
 		"onCommand:blazepack.startDevServer",
 		"onView:blazepack.devServer"
 	],
+	"icon": "resources/logo.png",
 	"main": "./extension.js",
 	"contributes": {
 		"commands": [
