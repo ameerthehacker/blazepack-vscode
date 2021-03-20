@@ -11,6 +11,34 @@ function activate(context) {
 	// TODO: eventually we want to move this into a setting
 	const DEV_SERVER_PORT = 3000;
 	const isBpDevServerRunning = () => activeBlazepackServer && activeBlazepackServer.address();
+	const selectWorkspaceFolder = async () => {
+		const workspaces = vscode.workspace.workspaceFolders;
+		let selectedWorkspace;
+
+		if (workspaces) {
+			if (workspaces.length == 1) {
+				selectedWorkspace = workspaces[0];
+			} else {
+				const availableWorkspaces = workspaces.map(
+					workspace => workspace.name
+				);
+				const result = await vscode.window.showQuickPick(
+					availableWorkspaces,
+					{
+						canPickMany: false
+					}
+				);
+
+				if (result) {
+					selectedWorkspace = workspaces.find(
+						workspace => workspace.name == result
+					);
+				}
+			}
+		}
+
+		return selectedWorkspace;
+	}
 	const startBpDevServer = async () => {
 		if (isBpDevServerRunning()) {
 			vscode.window.showErrorMessage(`Blazepack dev server is already running!`);
@@ -18,10 +46,10 @@ function activate(context) {
 			return;
 		}
 
-		const workspaceFolders = vscode.workspace.workspaceFolders;
+		const workspaceFolder = await selectWorkspaceFolder();
 
-		if (workspaceFolders) {
-			const directory = workspaceFolders[0].uri.path;
+		if (workspaceFolder) {
+			const directory = workspaceFolder.uri.path;
 
 			try {
 				environment = bp.utils.detectTemplate(directory);
