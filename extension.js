@@ -168,14 +168,16 @@ class BpDevServerWebViewProvider {
 
 		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
-		if (this._onLoadFn) {
-			this._onLoadFn();
-		}
-
 		this._view.webview.onDidReceiveMessage((data) => {
 			const { type } = data;
 
 			switch (type) {
+				case UI_MESSGAGES.LOAD: {
+					if (this._onLoadFn) {
+						this._onLoadFn();
+					}
+					break;
+				}
 				case UI_MESSGAGES.START_DEV_SERVER: {
 					if (this._onStartDevServer) {
 						this._onStartDevServer();

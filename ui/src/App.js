@@ -33,6 +33,10 @@ export default function App() {
 
     window.addEventListener('message', messageListener);
 
+    vscode.postMessage({
+      type: UI_MESSGAGES.LOAD
+    });
+
     return () => window.removeEventListener('message', messageListener);
   }, []);
 
