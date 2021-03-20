@@ -128,11 +128,13 @@ function activate(context) {
 	bpWebviewProvider.onStopDevServer(stopBpDevServer);
 	bpWebviewProvider.onExportSandbox(exportSandbox);
 
-	let startDevServerDisposable = vscode.commands.registerCommand('blazepack.startDevServer', startBpDevServer);
-	let stopDevServerDisposable = vscode.commands.registerCommand('blazepack.stopDevServer', stopBpDevServer);
+	const startDevServerDisposable = vscode.commands.registerCommand('blazepack.startDevServer', startBpDevServer);
+	const stopDevServerDisposable = vscode.commands.registerCommand('blazepack.stopDevServer', stopBpDevServer);
+	const exportSandboxDisposable = vscode.commands.registerCommand('blazepack.exportSandbox', exportSandbox);
 
 	context.subscriptions.push(startDevServerDisposable);
 	context.subscriptions.push(stopDevServerDisposable);
+	context.subscriptions.push(exportSandboxDisposable);
 }
 
 function deactivate() {
