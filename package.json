@@ -19,6 +19,10 @@
 			{
 				"command": "blazepack.startDevServer",
 				"title": "Start Blazepack dev server"
+			},
+			{
+				"command": "blazepack.stopDevServer",
+				"title": "Stop Blazepack dev server"
 			}
 		],
 		"viewsWelcome": [

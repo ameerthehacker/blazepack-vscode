@@ -2,16 +2,18 @@ const vscode = require('vscode');
 const bp = require('blazepack');
 const path = require('path');
 
+let activeBlazepackServer;
+
 function activate(context) {
 	const provider = new BpDevServerWebViewProvider(context.extensionUri);
 	// TODO: eventually we want to move this into a setting
 	const DEV_SERVER_PORT = 3000;
-	let activeBlazepackServer;
 
 	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(BpDevServerWebViewProvider.viewType, provider));
+		vscode.window.registerWebviewViewProvider(BpDevServerWebViewProvider.viewType, provider)
+	);
 
-	let disposable = vscode.commands.registerCommand('blazepack.startDevServer', async () => {
+	let startDevServerDisposable = vscode.commands.registerCommand('blazepack.startDevServer', async () => {
 		if (activeBlazepackServer) {
 			vscode.window.showErrorMessage(`Blazepack dev server is already running!`);
 
@@ -35,10 +37,28 @@ function activate(context) {
 		}
 	});
 
-	context.subscriptions.push(disposable);
+	let stopDevServerDisposable = vscode.commands.registerCommand('blazepack.stopDevServer', () => {
+		if (!activeBlazepackServer) {
+			vscode.window.showErrorMessage(`Blazepack dev server is not running!`);
+
+			return;
+		}
+
+		activeBlazepackServer.close();
+
+		vscode.window.showInformationMessage("Blazepack dev server stopped!");
+	});
+
+	context.subscriptions.push(startDevServerDisposable);
+	context.subscriptions.push(stopDevServerDisposable);
 }
 
-function deactivate() {}
+function deactivate() {
+	if (activeBlazepackServer) {
+		// clean up the dev server
+		activeBlazepackServer.close();
+	}
+}
 
 class BpDevServerWebViewProvider {
 	static viewType = 'blazepack.devServer';
