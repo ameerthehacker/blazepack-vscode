@@ -10,20 +10,7 @@ function activate(context) {
 	// TODO: eventually we want to move this into a setting
 	const DEV_SERVER_PORT = 3000;
 	const isBpDevServerRunning = () => activeBlazepackServer && activeBlazepackServer.address();
-
-	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(BpDevServerWebViewProvider.viewType, bpWebviewProvider)
-	);
-
-	bpWebviewProvider.onLoad(() => {
-		if (isBpDevServerRunning()) {
-			bpWebviewProvider.startDevServer();
-		} else {
-			bpWebviewProvider.startDevServer();
-		}
-	})
-
-	let startDevServerDisposable = vscode.commands.registerCommand('blazepack.startDevServer', async () => {
+	const startBpDevServer = async () => {
 		if (isBpDevServerRunning()) {
 			vscode.window.showErrorMessage(`Blazepack dev server is already running!`);
 
@@ -40,16 +27,15 @@ function activate(context) {
 				
 				vscode.window.showInformationMessage(`⚡ Blazepack dev server running at ${DEV_SERVER_PORT}`);
 
-				bpWebviewProvider.startDevServer();
+				bpWebviewProvider.sendStartDevServer();
 			} catch (err) {
 				vscode.window.showErrorMessage(err);
 			}
 		} else {
 			vscode.window.showErrorMessage('Working folder not found, open a folder and try again');
 		}
-	});
-
-	let stopDevServerDisposable = vscode.commands.registerCommand('blazepack.stopDevServer', () => {
+	}
+	const stopBpDevServer = () => {
 		if (!isBpDevServerRunning()) {
 			vscode.window.showErrorMessage(`Blazepack dev server is not running!`);
 
@@ -58,10 +44,28 @@ function activate(context) {
 
 		activeBlazepackServer.close();
 
-		bpWebviewProvider.stopDevServer();
+		bpWebviewProvider.sendStopDevServer();
 
 		vscode.window.showInformationMessage("Blazepack dev server stopped!");
+	}
+
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider(BpDevServerWebViewProvider.viewType, bpWebviewProvider)
+	);
+
+	bpWebviewProvider.onLoad(() => {
+		if (isBpDevServerRunning()) {
+			bpWebviewProvider.sendStartDevServer();
+		} else {
+			bpWebviewProvider.sendStopDevServer();
+		}
 	});
+
+	bpWebviewProvider.onStartDevServer(startBpDevServer);
+	bpWebviewProvider.onStopDevServer(stopBpDevServer);
+
+	let startDevServerDisposable = vscode.commands.registerCommand('blazepack.startDevServer', startBpDevServer);
+	let stopDevServerDisposable = vscode.commands.registerCommand('blazepack.stopDevServer', stopBpDevServer);
 
 	context.subscriptions.push(startDevServerDisposable);
 	context.subscriptions.push(stopDevServerDisposable);
@@ -81,6 +85,8 @@ class BpDevServerWebViewProvider {
 		this._extensionUri = extensionUri;
 		this._view = null;
 		this._onLoadFn = null;
+		this._onStartDevServer = null;
+		this._onStopDevServer = null;
 	}
 
 	resolveWebviewView(webviewView, context, _token) {
@@ -98,13 +104,42 @@ class BpDevServerWebViewProvider {
 		if (this._onLoadFn) {
 			this._onLoadFn();
 		}
+
+		this._view.webview.onDidReceiveMessage((data) => {
+			const { type } = data;
+
+			switch (type) {
+				case UI_MESSGAGES.START_DEV_SERVER: {
+					if (this._onStartDevServer) {
+						this._onStartDevServer();
+					}
+
+					break;
+				}
+				case UI_MESSGAGES.STOP_DEV_SERVER: {
+					if (this._onStopDevServer) {
+						this._onStopDevServer();
+					}
+
+					break;
+				}
+			}
+		});
+	}
+
+	onStartDevServer(fn) {
+		this._onStartDevServer = fn;
+	}
+
+	onStopDevServer(fn) {
+		this._onStopDevServer = fn;
 	}
 
 	onLoad(fn) {
 		this._onLoadFn = fn;
 	}
 
-	startDevServer() {
+	sendStartDevServer() {
 		if (this._view) {
 			this._view.webview.postMessage({
 				type: UI_MESSGAGES.START_DEV_SERVER
@@ -112,7 +147,7 @@ class BpDevServerWebViewProvider {
 		}
 	}
 
-	stopDevServer() {
+	sendStopDevServer() {
 		if (this._view) {
 			this._view.webview.postMessage({
 				type: UI_MESSGAGES.STOP_DEV_SERVER

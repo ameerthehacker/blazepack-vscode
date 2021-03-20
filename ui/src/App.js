@@ -4,6 +4,8 @@ import "./styles.css";
 import { useEffect, useState } from 'react';
 import UI_MESSGAGES from './constansts';
 
+const vscode = acquireVsCodeApi();
+
 export default function App() {
   const [isServerRunning, setIsServerRunning] = useState(false);
 
@@ -34,8 +36,20 @@ export default function App() {
         <p>Environment</p>
         <p>create-react-app</p>
       </div>
-			<button>{isServerRunning? "Stop Dev Server": "Start Dev Server"}</button>
-			<button className="mt-10">Export to Codesandbox</button>
+			<button onClick={() => {
+        if (isServerRunning) {
+          vscode.postMessage({
+            type: UI_MESSGAGES.STOP_DEV_SERVER
+          });
+        } else {
+          vscode.postMessage({
+            type: UI_MESSGAGES.START_DEV_SERVER
+          });
+        }
+      }}>{isServerRunning? "Stop Dev Server": "Start Dev Server"}</button>
+			<button onClick={() => {
+        
+      }} className="mt-10">Export to Codesandbox</button>
     </div>
   );
 }
