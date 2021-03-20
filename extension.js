@@ -6,6 +6,7 @@ const UI_MESSGAGES = require('./ui/src/constansts');
 let activeBlazepackServer;
 
 function activate(context) {
+	let environment;
 	const bpWebviewProvider = new BpDevServerWebViewProvider(context.extensionUri);
 	// TODO: eventually we want to move this into a setting
 	const DEV_SERVER_PORT = 3000;
@@ -23,11 +24,12 @@ function activate(context) {
 			const directory = workspaceFolders[0].uri.path;
 
 			try {
+				environment = bp.utils.detectTemplate(directory);
 				activeBlazepackServer = await bp.commands.startDevServer({ directory, port: DEV_SERVER_PORT });
 				
 				vscode.window.showInformationMessage(`⚡ Blazepack dev server running at ${DEV_SERVER_PORT}`);
 
-				bpWebviewProvider.sendStartDevServer();
+				bpWebviewProvider.sendStartDevServer(environment);
 			} catch (err) {
 				vscode.window.showErrorMessage(err);
 			}
@@ -55,7 +57,7 @@ function activate(context) {
 
 	bpWebviewProvider.onLoad(() => {
 		if (isBpDevServerRunning()) {
-			bpWebviewProvider.sendStartDevServer();
+			bpWebviewProvider.sendStartDevServer(null);
 		} else {
 			bpWebviewProvider.sendStopDevServer();
 		}
@@ -139,10 +141,11 @@ class BpDevServerWebViewProvider {
 		this._onLoadFn = fn;
 	}
 
-	sendStartDevServer() {
+	sendStartDevServer(environment) {
 		if (this._view) {
 			this._view.webview.postMessage({
-				type: UI_MESSGAGES.START_DEV_SERVER
+				type: UI_MESSGAGES.START_DEV_SERVER,
+				environment
 			})
 		}
 	}

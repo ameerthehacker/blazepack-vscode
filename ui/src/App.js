@@ -10,6 +10,7 @@ const vscode = acquireVsCodeApi();
 
 export default function App() {
   const [isServerRunning, setIsServerRunning] = useState(false);
+  const [environment, setEnvironment] = useState(null);
 
   useEffect(() => {
     const messageListener = (evt) => {
@@ -17,7 +18,10 @@ export default function App() {
 
       switch (type) {
         case UI_MESSGAGES.START_DEV_SERVER: {
+          const { environment } = evt.data;
+
           setIsServerRunning(true);
+          setEnvironment(environment);
 
           break;
         }
@@ -34,10 +38,6 @@ export default function App() {
 
   return (
     <div>
-      <div className="info-box">
-        <p>Environment</p>
-        <p>create-react-app</p>
-      </div>
 			<button onClick={() => {
         if (isServerRunning) {
           vscode.postMessage({
@@ -60,6 +60,14 @@ export default function App() {
         &nbsp;
         Export to Codesandbox
       </button>
+      {
+        environment && (
+          <div className="info-box">
+            <p>Environment</p>
+            <p>{environment}</p>
+          </div>
+        )
+      }
     </div>
   );
 }
