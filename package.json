@@ -63,6 +63,7 @@
 		"test": "node ./test/runTest.js",
 		"vscode:prepublish": "cd ui && npm run build"
 	},
+	"publisher": "ameerthehacker",
 	"devDependencies": {
 		"@types/vscode": "^1.53.0",
 		"@types/glob": "^7.1.3",
