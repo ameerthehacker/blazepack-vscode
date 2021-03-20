@@ -25,7 +25,8 @@ function activate(context) {
 				const result = await vscode.window.showQuickPick(
 					availableWorkspaces,
 					{
-						canPickMany: false
+						canPickMany: false,
+						placeHolder: "Select the project to run Blazepack dev server"
 					}
 				);
 
