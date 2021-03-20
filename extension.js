@@ -54,13 +54,22 @@ function activate(context) {
 
 			try {
 				environment = bp.utils.detectTemplate(directory);
-				activeBlazepackServer = await bp.commands.startDevServer({ directory, port: DEV_SERVER_PORT });
-				
-				vscode.window.showInformationMessage(`⚡ Blazepack dev server running at ${DEV_SERVER_PORT}`);
+				bp.commands.startDevServer({ directory, port: DEV_SERVER_PORT, onSuccess: (server) => {
+					activeBlazepackServer = server;
 
-				bpWebviewProvider.sendStartDevServer(environment);
+					vscode.window.showInformationMessage(`⚡ Blazepack dev server running at ${DEV_SERVER_PORT}`);
+
+					bpWebviewProvider.sendStartDevServer(environment);
+				}, onError: (err) => {
+					// something went wrong after starting the devserver
+					vscode.window.showErrorMessage(err);
+
+					bpWebviewProvider.sendStopDevServer();
+				}});
 			} catch (err) {
 				vscode.window.showErrorMessage(err);
+
+				bpWebviewProvider.sendStopDevServer();
 			}
 		} else {
 			vscode.window.showErrorMessage('Working folder not found, open a folder and try again');
