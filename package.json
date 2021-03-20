@@ -26,30 +26,30 @@
 			}
 		],
 		"viewsWelcome": [
-      {
-        "view": "blazepack.devServer",
-        "contents": "In order to use Blazepack, you need to open a supported project.\n[Open Folder](command:vscode.openFolder)\nTo learn more about how to use Blazepack in VS Code [read our docs](https://github.com/ameerthehacker/blazepack-vscode).",
-        "when": "workbenchState == empty"
-      }
-    ],
+			{
+				"view": "blazepack.devServer",
+				"contents": "In order to use Blazepack, you need to open a supported project.\n[Open Folder](command:vscode.openFolder)\nTo learn more about how to use Blazepack in VS Code [read our docs](https://github.com/ameerthehacker/blazepack-vscode).",
+				"when": "workbenchState == empty"
+			}
+		],
 		"viewsContainers": {
-      "activitybar": [
-        {
-          "id": "blazepackCockpit",
-          "title": "Blazepack",
-          "icon": "resources/logo.svg"
-        }
-      ]
-    },
-    "views": {
-      "blazepackCockpit": [
-        {
-          "id": "blazepack.devServer",
+			"activitybar": [
+				{
+					"id": "blazepackCockpit",
+					"title": "Blazepack",
+					"icon": "resources/logo.svg"
+				}
+			]
+		},
+		"views": {
+			"blazepackCockpit": [
+				{
+					"id": "blazepack.devServer",
 					"type": "webview",
-          "name": "Dev Server"
-        }
-      ]
-    }
+					"name": "Dev Server"
+				}
+			]
+		}
 	},
 	"private": "true",
 	"scripts": {
@@ -69,6 +69,7 @@
 		"vscode-test": "^1.5.0"
 	},
 	"dependencies": {
-		"blazepack": "0.0.41"
+		"blazepack": "0.0.41",
+		"react-icons": "^4.2.0"
 	}
 }

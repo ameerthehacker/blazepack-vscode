@@ -3,6 +3,8 @@ import "./reset.css";
 import "./styles.css";
 import { useEffect, useState } from 'react';
 import UI_MESSGAGES from './constansts';
+import { FaPlay, FaStop } from 'react-icons/fa';
+import { SiCodesandbox } from 'react-icons/si';
 
 const vscode = acquireVsCodeApi();
 
@@ -46,10 +48,18 @@ export default function App() {
             type: UI_MESSGAGES.START_DEV_SERVER
           });
         }
-      }}>{isServerRunning? "Stop Dev Server": "Start Dev Server"}</button>
+      }}>
+        {isServerRunning? <FaStop /> : <FaPlay />}
+        &nbsp;
+        {isServerRunning? "Stop Dev Server": "Start Dev Server"}
+      </button>
 			<button onClick={() => {
         
-      }} className="mt-10">Export to Codesandbox</button>
+      }} className="mt-10">
+        <SiCodesandbox />
+        &nbsp;
+        Export to Codesandbox
+      </button>
     </div>
   );
 }
