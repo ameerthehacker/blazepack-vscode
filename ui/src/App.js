@@ -54,7 +54,9 @@ export default function App() {
         {isServerRunning? "Stop Dev Server": "Start Dev Server"}
       </button>
 			<button onClick={() => {
-        
+        vscode.postMessage({
+          type: UI_MESSGAGES.EXPORT_SANDBOX
+        });
       }} className="mt-10">
         <SiCodesandbox />
         &nbsp;

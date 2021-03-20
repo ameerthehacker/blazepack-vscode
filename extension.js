@@ -88,6 +88,29 @@ function activate(context) {
 
 		vscode.window.showInformationMessage("Blazepack dev server stopped!");
 	}
+	const exportSandbox = async () => {
+		const workspaceFolder = await selectWorkspaceFolder();
+
+		if (workspaceFolder) {
+			const directory = workspaceFolder.uri.path;
+
+			vscode.window.withProgress({
+				location: vscode.ProgressLocation.Notification,
+				title: "Exporting to codesandbox.io...",
+				cancellable: false
+			}, () => {
+				return new Promise((resolve) => {
+					bp.commands.exportSandbox({ directory, openInBrowser: true, onSuccess: () => {
+						resolve();
+					}, onError: (err) => {
+						vscode.window.showErrorMessage(err);
+					}});
+				});
+			});
+		} else {
+			vscode.window.showErrorMessage('Working folder not found, open a folder and try again');
+		}
+	}
 
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(BpDevServerWebViewProvider.viewType, bpWebviewProvider)
@@ -103,6 +126,7 @@ function activate(context) {
 
 	bpWebviewProvider.onStartDevServer(startBpDevServer);
 	bpWebviewProvider.onStopDevServer(stopBpDevServer);
+	bpWebviewProvider.onExportSandbox(exportSandbox);
 
 	let startDevServerDisposable = vscode.commands.registerCommand('blazepack.startDevServer', startBpDevServer);
 	let stopDevServerDisposable = vscode.commands.registerCommand('blazepack.stopDevServer', stopBpDevServer);
@@ -127,6 +151,7 @@ class BpDevServerWebViewProvider {
 		this._onLoadFn = null;
 		this._onStartDevServer = null;
 		this._onStopDevServer = null;
+		this._exportSandbox = null;
 	}
 
 	resolveWebviewView(webviewView, context, _token) {
@@ -163,6 +188,13 @@ class BpDevServerWebViewProvider {
 
 					break;
 				}
+				case UI_MESSGAGES.EXPORT_SANDBOX: {
+					if (this._exportSandbox) {
+						this._exportSandbox();
+					}
+
+					break;
+				}
 			}
 		});
 	}
@@ -173,6 +205,10 @@ class BpDevServerWebViewProvider {
 
 	onStopDevServer(fn) {
 		this._onStopDevServer = fn;
+	}
+
+	onExportSandbox(fn) {
+		this._exportSandbox = fn;
 	}
 
 	onLoad(fn) {
