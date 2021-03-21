@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import UI_MESSGAGES from './constansts';
 import { FaPlay, FaStop } from 'react-icons/fa';
 import { SiCodesandbox } from 'react-icons/si';
+import { IoMdCreate } from 'react-icons/io';
 
 const vscode = acquireVsCodeApi();
 
@@ -42,7 +43,16 @@ export default function App() {
 
   return (
     <div>
-			<button onClick={() => {
+      <button onClick={() => {
+        vscode.postMessage({
+          type: UI_MESSGAGES.NEW_PROJECT
+        })
+      }}>
+        <IoMdCreate />
+        &nbsp;
+        New Project
+      </button>
+			<button className="mt-10" onClick={() => {
         if (isServerRunning) {
           vscode.postMessage({
             type: UI_MESSGAGES.STOP_DEV_SERVER

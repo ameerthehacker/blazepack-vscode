@@ -11,6 +11,21 @@ function activate(context) {
 	// TODO: eventually we want to move this into a setting
 	const DEV_SERVER_PORT = 3000;
 	const isBpDevServerRunning = () => activeBlazepackServer && activeBlazepackServer.address();
+	const selectDirectory = async() => {
+		const folderUris = await vscode.window.showOpenDialog({
+			canSelectFiles: false,
+			canSelectFolders: true,
+			canSelectMany: false,
+			title: "Select where to create new project"
+		});
+
+		return folderUris && folderUris[0] && folderUris[0].fsPath;
+	}
+	const openDirectory = (directory) => {
+		let uri = vscode.Uri.parse(`file://${directory}`);
+
+		vscode.commands.executeCommand('vscode.openFolder', uri);
+	}
 	const selectWorkspaceFolder = async () => {
 		const workspaces = vscode.workspace.workspaceFolders;
 		let selectedWorkspace;
@@ -111,6 +126,11 @@ function activate(context) {
 			vscode.window.showErrorMessage('Working folder not found, open a folder and try again');
 		}
 	}
+	const createProject = async () => {
+		const directory = await selectDirectory();
+
+		openDirectory(directory);
+	}
 
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(BpDevServerWebViewProvider.viewType, bpWebviewProvider)
@@ -127,6 +147,7 @@ function activate(context) {
 	bpWebviewProvider.onStartDevServer(startBpDevServer);
 	bpWebviewProvider.onStopDevServer(stopBpDevServer);
 	bpWebviewProvider.onExportSandbox(exportSandbox);
+	bpWebviewProvider.onNewProject(createProject);
 
 	const startDevServerDisposable = vscode.commands.registerCommand('blazepack.startDevServer', startBpDevServer);
 	const stopDevServerDisposable = vscode.commands.registerCommand('blazepack.stopDevServer', stopBpDevServer);
@@ -154,6 +175,7 @@ class BpDevServerWebViewProvider {
 		this._onStartDevServer = null;
 		this._onStopDevServer = null;
 		this._exportSandbox = null;
+		this._onNewProject = null;
 	}
 
 	resolveWebviewView(webviewView, context, _token) {
@@ -199,12 +221,21 @@ class BpDevServerWebViewProvider {
 
 					break;
 				}
+				case UI_MESSGAGES.NEW_PROJECT: {
+					if (this._onNewProject) {
+						this._onNewProject();
+					}
+				}
 			}
 		});
 	}
 
 	onStartDevServer(fn) {
 		this._onStartDevServer = fn;
+	}
+
+	onNewProject(fn) {
+		this._onNewProject = fn;
 	}
 
 	onStopDevServer(fn) {
