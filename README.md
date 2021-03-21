@@ -9,6 +9,7 @@
 ## Usage
 
 - Run `Cmd + P` on Mac or `Ctrl + P` on Windows and linux
+- Enter the command `> New Project` to create a brand new frontend project
 - Enter the command `> Start Dev Server` to start the dev server
 - Enter the command `> Stop Dev Server` to stop the dev server
 - Enter the command `> Export Codesandbox` to export to codesandbox.io
