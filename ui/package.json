@@ -14,7 +14,7 @@
     "react-dom": "17.0.1",
     "react-scripts": "4.0.0",
     "write-file-webpack-plugin": "^4.5.1",
-		"react-icons": "^4.2.0"
+    "react-icons": "^4.2.0"
   },
   "scripts": {
     "start": "BROWSER=none craco start",
