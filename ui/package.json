@@ -9,16 +9,14 @@
   "main": "src/index.js",
   "dependencies": {
     "@babel/runtime": "7.13.8",
-    "@craco/craco": "^6.1.1",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-scripts": "4.0.0",
-    "write-file-webpack-plugin": "^4.5.1",
     "react-icons": "^4.2.0"
   },
   "scripts": {
-    "start": "BROWSER=none craco start",
-    "build": "craco build"
+    "start": "BROWSER=none react-scripts start",
+    "build": "react-scripts build"
   },
   "browserslist": [
     ">0.2%",

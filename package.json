@@ -28,6 +28,10 @@
 			{
 				"command": "blazepack.exportSandbox",
 				"title": "Export to Codesandbox"
+			},
+			{
+				"command": "blazepack.createProject",
+				"title": "New Project"
 			}
 		],
 		"viewsWelcome": [

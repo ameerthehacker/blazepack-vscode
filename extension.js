@@ -1,7 +1,7 @@
 const vscode = require('vscode');
 const bp = require('blazepack');
-const path = require('path');
 const UI_MESSGAGES = require('./ui/src/constansts');
+const path = require('path');
 
 let activeBlazepackServer;
 
@@ -25,6 +25,23 @@ function activate(context) {
 		let uri = vscode.Uri.parse(`file://${directory}`);
 
 		vscode.commands.executeCommand('vscode.openFolder', uri);
+	}
+	const selectProjectTemplate = async () => {
+		const availableTemplates = Object.keys(bp.constants.TEMPLATES);
+
+		return await vscode.window.showQuickPick(
+			availableTemplates,
+			{
+				canPickMany: false,
+				placeHolder: "Select the project template"
+			}
+		);
+	}
+	const getProjectName = async () => {
+		return await vscode.window.showInputBox({
+			prompt: "Entern the project name",
+			placeHolder: "eg: my-react-app",
+		});
 	}
 	const selectWorkspaceFolder = async () => {
 		const workspaces = vscode.workspace.workspaceFolders;
@@ -118,6 +135,7 @@ function activate(context) {
 					bp.commands.exportSandbox({ directory, openInBrowser: true, onSuccess: () => {
 						resolve();
 					}, onError: (err) => {
+						resolve();
 						vscode.window.showErrorMessage(err);
 					}});
 				});
@@ -127,9 +145,41 @@ function activate(context) {
 		}
 	}
 	const createProject = async () => {
-		const directory = await selectDirectory();
+		const projectName = await getProjectName();
 
-		openDirectory(directory);
+		if (projectName) {
+			const template = await selectProjectTemplate();
+
+			if (template) {
+				const directory = await selectDirectory();
+				const projectPath = path.join(directory, projectName);
+				const relativeProjectPath = path.join(process.cwd(), projectPath);
+
+				if (directory) {
+					vscode.window.withProgress({
+						location: vscode.ProgressLocation.Notification,
+						title: `Creating a new ${template} project...`,
+						cancellable: false
+					}, () => {
+						return new Promise((resolve) => {
+							bp.commands.createProject({
+								projectName: relativeProjectPath,
+								startServer: false,
+								templateId: bp.constants.TEMPLATES[template],
+								onSuccess: () => {
+									resolve();
+									openDirectory(projectPath);
+								},
+								onError: (err) => {
+									resolve();
+									vscode.window.showErrorMessage(err);
+								}
+							})
+						});
+					});
+				}
+			}
+		}
 	}
 
 	context.subscriptions.push(
@@ -152,10 +202,12 @@ function activate(context) {
 	const startDevServerDisposable = vscode.commands.registerCommand('blazepack.startDevServer', startBpDevServer);
 	const stopDevServerDisposable = vscode.commands.registerCommand('blazepack.stopDevServer', stopBpDevServer);
 	const exportSandboxDisposable = vscode.commands.registerCommand('blazepack.exportSandbox', exportSandbox);
+	const createProjectDisposable = vscode.commands.registerCommand('blazepack.createProject', createProject);
 
 	context.subscriptions.push(startDevServerDisposable);
 	context.subscriptions.push(stopDevServerDisposable);
 	context.subscriptions.push(exportSandboxDisposable);
+	context.subscriptions.push(createProjectDisposable);
 }
 
 function deactivate() {
