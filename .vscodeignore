@@ -7,7 +7,5 @@ vsc-extension-quickstart.md
 **/jsconfig.json
 **/*.map
 **/.eslintrc.json
-node_modules
 ui
 !ui/build
-!node_modules/blazepack
