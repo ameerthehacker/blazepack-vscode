@@ -7,10 +7,7 @@ vsc-extension-quickstart.md
 **/jsconfig.json
 **/*.map
 **/.eslintrc.json
-ui/public/**
-ui/src/**
-ui/package.json
-ui/package-lock.json
-ui/craco.config.js
-node_modules/**
-ui/node_modules/**
+node_modules
+ui
+!ui/build
+!node_modules/blazepack
