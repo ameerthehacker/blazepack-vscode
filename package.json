@@ -73,6 +73,6 @@
 		"url": "git+https://github.com/ameerthehacker/blazepack-vscode.git"
 	},
 	"dependencies": {
-		"blazepack": "0.0.47"
+		"blazepack": "0.0.57"
 	}
 }
