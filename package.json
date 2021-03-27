@@ -2,7 +2,7 @@
 	"name": "blazepack-vscode",
 	"displayName": "Blazepack",
 	"description": "Blazing fast dev server powered by sandpack",
-	"version": "0.0.7",
+	"version": "0.0.8",
 	"engines": {
 		"vscode": "^1.53.0"
 	},
